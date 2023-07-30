@@ -9,6 +9,7 @@ ALGORITHM_FUNCTIONS = {
     'dijkstra': dijkstra_algorithm,
     'astar': astar_algorithm,
     'bfs': bfs_algorithm,
+    'dfs': dfs_algorithm
 }
 
 
