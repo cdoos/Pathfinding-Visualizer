@@ -3,8 +3,8 @@ from .algorithms import ALGORITHM_CHOICES
 
 
 class PointSerializer(serializers.Serializer):
-    x = serializers.IntegerField(min_value=1)
-    y = serializers.IntegerField(min_value=1)
+    x = serializers.IntegerField(min_value=1, max_value=1000)
+    y = serializers.IntegerField(min_value=1, max_value=1000)
 
 
 class PathfinderSerializer(serializers.Serializer):

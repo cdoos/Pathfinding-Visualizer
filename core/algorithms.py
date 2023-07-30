@@ -4,6 +4,7 @@ ALGORITHM_CHOICES = [
     ('dijkstra', 'Dijkstra'),
     ('astar', 'A*'),
     ('bfs', 'Breadth-First Search'),
+    ('dfs', 'Depth-First Search'),
 ]
 
 
@@ -65,8 +66,63 @@ def dijkstra_algorithm(rows, columns, obstacles, start_x, start_y, target_x, tar
 
 
 def astar_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y):
-    #TODO cdos
-    pass
+    class Node:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+            self.g = float('inf')
+            self.h = 0
+            self.f = 0
+            self.parent = None
+
+        def __lt__(self, other):
+            return self.f < other.f
+
+    def heuristic(node, goal):
+        return abs(node.x - goal.x) + abs(node.y - goal.y)
+
+    def reconstruct_path(node):
+        path = []
+        while node is not None:
+            path.insert(0, (node.x, node.y))
+            node = node.parent
+        return path
+
+    start, target = Node(start_x, start_y), Node(target_x, target_y)
+
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    open_set = []
+
+    if (start_x, start_y) not in obstacles:
+        heapq.heappush(open_set, start)
+
+    start.g = 0
+
+    visited = []
+
+    while open_set:
+        current_node = heapq.heappop(open_set)
+        if (current_node.x, current_node.y) == (target.x, target.y):
+            return visited, reconstruct_path(current_node)
+
+        visited.append((current_node.x, current_node.y))
+
+        for dx, dy in directions:
+            next_x, next_y = current_node.x + dx, current_node.y + dy
+
+            if 1 <= next_x <= rows and 1 <= next_y <= columns and (next_x, next_y) not in obstacles:
+                next_node = Node(next_x, next_y)
+                tentative_g = current_node.g + 1
+
+                if tentative_g < next_node.g:
+                    next_node.g = tentative_g
+                    next_node.h = heuristic(next_node, target)
+                    next_node.f = next_node.g + next_node.h
+                    next_node.parent = current_node
+                    if (next_node.x, next_node.y) not in visited:
+                        heapq.heappush(open_set, next_node)
+
+    return visited, []
 
 
 def bfs_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y):
@@ -97,6 +153,48 @@ def bfs_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y
                 if (next_x, next_y) not in visited:
                     visited[(next_x, next_y)] = (current_x, current_y)
                     queue.append((next_x, next_y))
+
+    path = []
+    current_node = (target_x, target_y)
+
+    if path_found:
+        while current_node:
+            path.append(current_node)
+            current_node = visited[current_node]
+
+    path.reverse()
+
+    return list(visited.keys()), path
+
+
+def dfs_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y):
+    starting_node = (start_x, start_y)
+
+    stack = []
+    visited = {}
+
+    if starting_node not in obstacles:
+        stack.append(starting_node)
+        visited[starting_node] = None
+
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    path_found = False
+
+    while stack:
+        current_x, current_y = stack.pop()
+
+        if current_x == target_x and current_y == target_y:
+            path_found = True
+            break
+
+        for dx, dy in directions:
+            next_x, next_y = current_x + dx, current_y + dy
+
+            if 1 <= next_x <= rows and 1 <= next_y <= columns and (next_x, next_y) not in obstacles:
+                if (next_x, next_y) not in visited:
+                    visited[(next_x, next_y)] = (current_x, current_y)
+                    stack.append((next_x, next_y))
 
     path = []
     current_node = (target_x, target_y)
