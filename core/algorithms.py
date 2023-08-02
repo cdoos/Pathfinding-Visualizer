@@ -1,8 +1,8 @@
 import heapq
 
 ALGORITHM_CHOICES = [
-    ('dijkstra', 'Dijkstra'),
-    ('astar', 'A*'),
+    ('Dijkstra', 'Dijkstra'),
+    ('AStar', 'A*'),
     ('bfs', 'Breadth-First Search'),
     ('dfs', 'Depth-First Search'),
 ]
@@ -170,40 +170,30 @@ def bfs_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y
 def dfs_algorithm(rows, columns, obstacles, start_x, start_y, target_x, target_y):
     starting_node = (start_x, start_y)
 
-    stack = []
-    visited = {}
-
-    if starting_node not in obstacles:
-        stack.append(starting_node)
-        visited[starting_node] = None
-
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-    path_found = False
-
-    while stack:
-        current_x, current_y = stack.pop()
-
-        if current_x == target_x and current_y == target_y:
-            path_found = True
-            break
-
-        for dx, dy in directions:
-            next_x, next_y = current_x + dx, current_y + dy
-
-            if 1 <= next_x <= rows and 1 <= next_y <= columns and (next_x, next_y) not in obstacles:
-                if (next_x, next_y) not in visited:
-                    visited[(next_x, next_y)] = (current_x, current_y)
-                    stack.append((next_x, next_y))
-
+    stack, visited_in_order = [], []
+    visited = [[False for _ in range(columns + 1)] for _ in range(rows + 1)]
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     path = []
-    current_node = (target_x, target_y)
 
-    if path_found:
-        while current_node:
-            path.append(current_node)
-            current_node = visited[current_node]
+    def dfs_recursive(row, col):
+        if not (1 <= row <= rows and 1 <= col <= columns and (row, col) not in obstacles) or visited[row][col]:
+            return False
 
-    path.reverse()
+        visited[row][col] = True
+        visited_in_order.append((row, col))
 
-    return list(visited.keys()), path
+        path.append((row, col))
+
+        if (row, col) == (target_x, target_y):
+            return True
+
+        for dr, dc in directions:
+            if dfs_recursive(row + dr, col + dc):
+                return True
+
+        path.pop()
+        return False
+
+    dfs_recursive(start_x, start_y)
+
+    return visited_in_order, path
