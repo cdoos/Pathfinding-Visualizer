@@ -6,8 +6,8 @@ from .algorithms import *
 
 
 ALGORITHM_FUNCTIONS = {
-    'dijkstra': dijkstra_algorithm,
-    'astar': astar_algorithm,
+    'Dijkstra': dijkstra_algorithm,
+    'AStar': astar_algorithm,
     'bfs': bfs_algorithm,
     'dfs': dfs_algorithm
 }
